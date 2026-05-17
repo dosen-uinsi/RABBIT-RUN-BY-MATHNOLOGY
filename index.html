@@ -2,16 +2,15 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <!-- OPTIMASI MOBILE: Mencegah zoom in/out saat tap cepat di layar sentuh -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Rabbit Run Game - Math Edition (Mobile Optimized)</title>
+  <!-- OPTIMASI MOBILE: Mencegah zoom in/out, memastikan skala tampilan konsisten -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Rabbit Run Game - Math Edition</title>
 
   <style>
     @import url('https://fonts.googleapis.com/css?family=Voltaire');
 
     * {
       box-sizing: border-box;
-      /* OPTIMASI MOBILE: Mencegah highlight biru saat elemen disentuh di HP */
       -webkit-tap-highlight-color: transparent; 
     }
 
@@ -22,7 +21,7 @@
       padding: 0;
       overflow: hidden;
       background-color: #dbe6e6;
-      touch-action: none; /* Cegah scroll browser */
+      touch-action: none; 
     }
 
     #world {
@@ -51,15 +50,14 @@
       border-radius: 20px;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      max-width: 500px;
+      max-width: 550px;
       width: 90%;
       max-height: 95vh;
       overflow-y: auto;
     }
 
-    /* CSS BARU UNTUK LOGO */
     .menu-logo {
-      max-width: 100%;
+      max-width: 80%;
       height: auto;
       margin-bottom: 20px;
       display: block;
@@ -95,7 +93,7 @@
     .checkbox-group label {
       font-size: 24px;
       background: #f1f1f1;
-      padding: 10px 20px;
+      padding: 10px 15px;
       border-radius: 8px;
       cursor: pointer;
       color: #544027;
@@ -106,7 +104,7 @@
 
     .checkbox-group input {
       transform: scale(1.5);
-      margin-right: 10px;
+      margin-right: 8px;
       cursor: pointer;
     }
 
@@ -120,7 +118,7 @@
     .opt-btn {
       width: 46%;
       margin: 2%;
-      font-size: 28px;
+      font-size: 32px;
       padding: 20px 0;
     }
 
@@ -171,7 +169,7 @@
       font-family: 'Voltaire', sans-serif;
       text-transform: uppercase;
       color: #ffa873;
-      font-size: 12px;
+      font-size: 14px;
       letter-spacing: 2px;
       text-align: center;
       margin-bottom: 5px;
@@ -181,7 +179,7 @@
     #distValue {
       text-transform: uppercase;
       color: #dc5f45;
-      font-size: 40px;
+      font-size: 45px;
       font-family: 'Voltaire', sans-serif;
       text-align: center;
       line-height: 1;
@@ -193,7 +191,7 @@
       bottom: 20px;
       font-family: 'Voltaire', sans-serif;
       color: #dc5f45;
-      font-size: 16px;
+      font-size: 18px;
       letter-spacing: 1px;
       text-transform: uppercase;
       text-align: center;
@@ -203,20 +201,39 @@
 
     .lightInstructions { color: #5f9042; }
 
-    /* OPTIMASI MOBILE: CSS Media Queries */
+    /* OPTIMASI LAYAR KECIL: Mempertahankan tata letak ala Desktop (Grid/Sejajar) */
     @media (max-width: 700px) {
-      .go-title { font-size: 60px; }
-      #instructions { font-size: 13px; padding: 0 10px; }
-      #distValue { font-size: 30px; }
+      .go-title { font-size: 15vw; margin-bottom: 10px; }
+      #instructions { font-size: 3.5vw; bottom: 15px; }
+      #distValue { font-size: 8vw; }
+      .label { font-size: 2.5vw; }
+      #dist { top: 15px; padding: 5px 20px; }
       
-      .menu-box { padding: 20px; }
-      .menu-btn { font-size: 16px; padding: 12px 20px; width: 90%; margin: 5px auto; }
+      .menu-box { padding: 5vw; width: 92%; }
+      .menu-logo { max-width: 80%; margin-bottom: 3vw; }
       
-      .checkbox-group { gap: 8px; margin: 15px 0;}
-      .checkbox-group label { font-size: 20px; padding: 8px 15px; width: 45%; justify-content: center;}
+      /* Tombol menu tetap bersebelahan, tidak menumpuk ke bawah */
+      .menu-btn { 
+        font-size: 3.5vw; 
+        padding: 3vw 4vw; 
+        margin: 1.5vw; 
+        width: auto; 
+        display: inline-block; 
+      }
       
-      .opt-btn { font-size: 24px; padding: 15px 0; }
-      #questionText { font-size: 26px; margin: 10px 0; }
+      .checkbox-group { gap: 1.5vw; margin: 3vw 0;}
+      /* Angka perkalian membentuk grid yang rapat seperti di laptop */
+      .checkbox-group label { 
+        font-size: 4vw; 
+        padding: 1.5vw 2.5vw; 
+        width: auto;
+      }
+      .checkbox-group input { transform: scale(1.1); margin-right: 1vw;}
+      
+      /* Opsi Jawaban tetap format 2x2 */
+      .opt-btn { width: 46%; margin: 2%; font-size: 6vw; padding: 4vw 0; }
+      #questionText { font-size: 6.5vw; margin: 2vw 0; }
+      h3 { font-size: 4vw !important; margin-bottom: 2vw !important; }
     }
   </style>
 </head>
@@ -227,7 +244,7 @@
   <!-- Start Menu Overlay -->
   <div id="startMenuOverlay" class="overlay-ui">
     <div class="menu-box">
-      <!-- LOGO BARU DARI GITHUB -->
+      <!-- LOGO DARI GITHUB -->
       <img src="https://raw.githubusercontent.com/dosen-uinsi/RABBIT-RUN-BY-MATHNOLOGY/refs/heads/main/RABBIT%20RUN.png" alt="Rabbit Run Logo" class="menu-logo">
       
       <!-- Pemilihan Mode -->
@@ -249,8 +266,10 @@
           <label><input type="checkbox" class="mul-cb" value="8"> 8</label>
           <label><input type="checkbox" class="mul-cb" value="9"> 9</label>
         </div>
-        <button class="menu-btn" onclick="startMathGame()">Mulai Bermain</button>
-        <button class="menu-btn" style="background:#a49789;" onclick="backToMode()">Kembali</button>
+        <div>
+          <button class="menu-btn" onclick="startMathGame()">Mulai Bermain</button>
+          <button class="menu-btn" style="background:#a49789;" onclick="backToMode()">Kembali</button>
+        </div>
       </div>
     </div>
   </div>
@@ -360,7 +379,6 @@ function initScreenAnd3D() {
 
   window.addEventListener('resize', handleWindowResize, false);
   
-  // OPTIMASI MOBILE: Mengelola event sentuhan dengan aman
   document.addEventListener('mousedown', handleInput, false);
   document.addEventListener('touchstart', handleInput, {passive: false});
   
@@ -378,23 +396,14 @@ function handleWindowResize() {
 }
 
 function handleInput(event){
-  // OPTIMASI MOBILE: Abaikan jika yang ditekan adalah area UI/Menu
   if (event.target.closest('.overlay-ui') || 
       event.target.closest('#gameoverInstructions button') || 
       event.target.tagName.toLowerCase() === 'input' || 
       event.target.tagName.toLowerCase() === 'label') {
     return;
   }
-
-  if(event.type === 'touchstart' && gameStatus === "play") {
-    event.preventDefault(); 
-  }
-
-  if (gameStatus == "play") {
-    hero.jump();
-  } else if (gameStatus == "readyToReplay") {
-    replay();
-  }
+  if(event.type === 'touchstart' && gameStatus === "play") { event.preventDefault(); }
+  if (gameStatus == "play") { hero.jump(); } else if (gameStatus == "readyToReplay") { replay(); }
 }
 
 function createLights() {
