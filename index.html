@@ -82,6 +82,54 @@
 
     .menu-btn:hover { background: #b44b39; }
 
+    /* Tombol Info / Tahukah Kamu */
+    .info-btn {
+      background: #5f9042;
+      font-size: 16px;
+      padding: 10px 25px;
+      margin-top: 15px;
+    }
+    .info-btn:hover { background: #4a7233; }
+
+    /* Pop Up Info Box */
+    .info-box {
+      position: relative;
+      padding: 20px;
+      max-width: 600px;
+      width: 95%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .info-img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: #dc5f45;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: 'Voltaire', sans-serif;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover { background: #b44b39; }
+
     .checkbox-group {
       display: flex;
       flex-wrap: wrap;
@@ -108,11 +156,40 @@
       cursor: pointer;
     }
 
+    /* Timer Settings */
+    .timer-toggle {
+      font-size: 20px;
+      color: #544027;
+      cursor: pointer;
+      background: #e6e6e6;
+      padding: 10px 20px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-bottom: 15px;
+      user-select: none;
+    }
+
+    #timerBarContainer {
+      width: 100%;
+      background: #f1f1f1;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      overflow: hidden;
+      display: none;
+    }
+
+    #timerBar {
+      height: 12px;
+      width: 100%;
+      background: #dc5f45;
+      transition: width 0.1s linear;
+    }
+
     .options-grid {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     .opt-btn {
@@ -153,15 +230,15 @@
       text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
     }
 
+    /* PANEL JARAK DIPINDAH KE KIRI ATAS */
     #dist {
       position: absolute;
-      left: 50%;
-      top: 30px;
-      transform: translate(-50%, 0%);
+      left: 20px;
+      top: 20px;
       user-select: none;
       z-index: 10;
       background: rgba(255,255,255,0.6);
-      padding: 10px 30px;
+      padding: 10px 20px;
       border-radius: 15px;
     }
 
@@ -207,12 +284,11 @@
       #instructions { font-size: 3.5vw; bottom: 15px; }
       #distValue { font-size: 8vw; }
       .label { font-size: 2.5vw; }
-      #dist { top: 15px; padding: 5px 20px; }
+      #dist { left: 15px; top: 15px; padding: 5px 15px; }
       
       .menu-box { padding: 5vw; width: 92%; }
       .menu-logo { max-width: 80%; margin-bottom: 3vw; }
       
-      /* Tombol menu tetap bersebelahan, tidak menumpuk ke bawah */
       .menu-btn { 
         font-size: 3.5vw; 
         padding: 3vw 4vw; 
@@ -221,8 +297,9 @@
         display: inline-block; 
       }
       
+      .info-btn { font-size: 3vw; margin-top: 3vw; padding: 2.5vw 4vw;}
+
       .checkbox-group { gap: 1.5vw; margin: 3vw 0;}
-      /* Angka perkalian membentuk grid yang rapat seperti di laptop */
       .checkbox-group label { 
         font-size: 4vw; 
         padding: 1.5vw 2.5vw; 
@@ -230,9 +307,10 @@
       }
       .checkbox-group input { transform: scale(1.1); margin-right: 1vw;}
       
-      /* Opsi Jawaban tetap format 2x2 */
+      .timer-toggle { font-size: 3.5vw; padding: 2vw 3vw; margin-bottom: 2vw;}
+
       .opt-btn { width: 46%; margin: 2%; font-size: 6vw; padding: 4vw 0; }
-      #questionText { font-size: 6.5vw; margin: 2vw 0; }
+      #questionText { font-size: 6.5vw; margin: 1vw 0 2vw 0; }
       h3 { font-size: 4vw !important; margin-bottom: 2vw !important; }
     }
   </style>
@@ -241,8 +319,8 @@
 <body>
   <div id="world"></div>
 
-  <!-- Start Menu Overlay -->
-  <div id="startMenuOverlay" class="overlay-ui">
+  <!-- Start Menu Overlay (style="display: flex;" MENCEGAH JEDA VISUAL SAAT LOADING AWAL) -->
+  <div id="startMenuOverlay" class="overlay-ui" style="display: flex;">
     <div class="menu-box">
       <!-- LOGO DARI GITHUB -->
       <img src="https://raw.githubusercontent.com/dosen-uinsi/RABBIT-RUN-BY-MATHNOLOGY/refs/heads/main/RABBIT%20RUN.png" alt="Rabbit Run Logo" class="menu-logo">
@@ -251,11 +329,20 @@
       <div id="modeSelection">
         <button class="menu-btn" onclick="startGameMode('normal')">Bermain Saja</button>
         <button class="menu-btn" onclick="startGameMode('math')">Main + Perkalian</button>
+        <br>
+        <button class="menu-btn info-btn" onclick="showInfoPopup()">💡 Tahukah Kamu?</button>
       </div>
 
       <!-- Pemilihan Angka Perkalian -->
       <div id="multiplierSelection" style="display:none;">
-        <h3 style="color:#544027; margin-bottom: 10px; font-size: 22px; text-transform:uppercase;">Pilih Angka Perkalian:</h3>
+        <h3 style="color:#544027; margin-bottom: 5px; font-size: 22px; text-transform:uppercase;">Pilih Angka Perkalian:</h3>
+        
+        <!-- Toggle Waktu 5 Detik -->
+        <label class="timer-toggle">
+          <input type="checkbox" id="useTimerCheckbox" style="transform: scale(1.3); margin-right: 8px;">
+          Gunakan Waktu (5 Detik)
+        </label>
+
         <div class="checkbox-group">
           <label><input type="checkbox" class="mul-cb" value="2" checked> 2</label>
           <label><input type="checkbox" class="mul-cb" value="3" checked> 3</label>
@@ -274,10 +361,26 @@
     </div>
   </div>
 
+  <!-- Info Popup Overlay (Tahukah Kamu?) -->
+  <div id="infoOverlay" class="overlay-ui">
+    <div class="menu-box info-box">
+      <button class="close-btn" onclick="closeInfoPopup()">X</button>
+      <h2 style="color:#5f9042; margin-top:0; margin-bottom: 10px; font-size: 28px; text-transform: uppercase;">Tahukah Kamu?</h2>
+      <!-- GAMBAR INFOGRAFIK -->
+      <img src="https://raw.githubusercontent.com/dosen-uinsi/RABBIT-RUN-BY-MATHNOLOGY/refs/heads/main/INFOGRAFIK%20KELINCI.png" alt="Infografik Kelinci" class="info-img">
+    </div>
+  </div>
+
   <!-- Question Overlay -->
   <div id="questionOverlay" class="overlay-ui">
-    <div class="menu-box" style="padding: 30px 20px;">
-      <h2 id="questionText" style="color:#544027;">2 x 3 = ?</h2>
+    <div class="menu-box" style="padding: 25px 20px;">
+      <h2 id="questionText" style="color:#544027; margin: 5px 0 15px 0;">2 x 3 = ?</h2>
+      
+      <!-- Timer Bar (Muncul jika diaktifkan) -->
+      <div id="timerBarContainer">
+        <div id="timerBar"></div>
+      </div>
+
       <div id="optionsContainer" class="options-grid"></div>
     </div>
   </div>
@@ -325,8 +428,12 @@ var floorRotation = 0;
 var collisionObstacle = 10;
 var collisionBonus = 20;
 
+// Variables untuk Mode Edukasi
 var gameStatus = "menu"; 
 var mathMode = false;
+var useTimer = false;
+var questionTimerInterval;
+var timeLeft = 5;
 var selectedMultipliers = [];
 
 var cameraPosGame = 160;
@@ -783,13 +890,40 @@ function generateMathQuestion(explosionPos) {
     container.appendChild(btn);
   });
 
+  // LOGIKA WAKTU (TIMER)
+  let timerContainer = document.getElementById('timerBarContainer');
+  let timerBar = document.getElementById('timerBar');
+  
+  if (useTimer) {
+    timerContainer.style.display = 'block';
+    timerBar.style.width = '100%';
+    timeLeft = 5;
+    
+    clearInterval(questionTimerInterval);
+    questionTimerInterval = setInterval(function() {
+      timeLeft -= 0.1;
+      timerBar.style.width = (timeLeft / 5 * 100) + '%';
+      
+      // Jika Waktu Habis (Salah)
+      if (timeLeft <= 0) {
+        clearInterval(questionTimerInterval);
+        checkMathAnswer(false, explosionPos); // Waktu habis = jawaban salah
+      }
+    }, 100);
+  } else {
+    timerContainer.style.display = 'none';
+  }
+
   document.getElementById('questionOverlay').style.display = 'flex';
   TweenMax.pauseAll(); 
 }
 
 function checkMathAnswer(isCorrect, pos) {
+  clearInterval(questionTimerInterval); // Hentikan timer jika ada
+  
   document.getElementById('questionOverlay').style.display = 'none';
-  if(isCorrect) { applyBonus(pos); }
+  if(isCorrect) { applyBonus(pos); } // Hanya maju menjauh jika benar
+  
   clock.getDelta(); 
   gameStatus = "play";
   TweenMax.resumeAll(); 
@@ -850,13 +984,21 @@ function initUI(){
   fieldGameOver = document.getElementById("gameoverInstructions");
 }
 
-window.addEventListener('load', init, false);
+window.addEventListener('DOMContentLoaded', init, false);
 
 function init(event){
   initScreenAnd3D(); createLights(); createFloor(); createHero(); createMonster(); createFirs();
   createCarrot(); createBonusParticles(); createObstacle(); initUI();
-  document.getElementById('startMenuOverlay').style.display = 'flex';
   gameStatus = "menu"; loop();
+}
+
+// LOGIKA TAHUKAH KAMU POPUP
+function showInfoPopup() {
+  document.getElementById('infoOverlay').style.display = 'flex';
+}
+
+function closeInfoPopup() {
+  document.getElementById('infoOverlay').style.display = 'none';
 }
 
 function startGameMode(mode) {
@@ -873,8 +1015,11 @@ function startGameMode(mode) {
 function startMathGame() {
   let checkboxes = document.querySelectorAll('.mul-cb:checked');
   if(checkboxes.length === 0) { alert('Pilih minimal satu angka perkalian!'); return; }
+  
   selectedMultipliers = Array.from(checkboxes).map(function(cb) { return parseInt(cb.value) });
+  useTimer = document.getElementById('useTimerCheckbox').checked; // Ambil nilai timer dari UI
   mathMode = true;
+  
   document.getElementById('startMenuOverlay').style.display = 'none';
   resetGame();
 }
