@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <!-- OPTIMASI MOBILE: Mencegah zoom in/out saat tap cepat di layar sentuh -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Rabbit Run Game - Math Edition (Mobile Optimized)</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Voltaire');
+
+    * {
+      box-sizing: border-box;
+      /* OPTIMASI MOBILE: Mencegah highlight biru saat elemen disentuh di HP */
+      -webkit-tap-highlight-color: transparent; 
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #dbe6e6;
+      touch-action: none; /* Cegah scroll browser */
+    }
+
+    #world {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: #dbe6e6;
+      overflow: hidden;
+    }
+
+    /* UI & Overlays */
+    .overlay-ui {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(219, 230, 230, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      font-family: 'Voltaire', sans-serif;
+    }
+
+    .menu-box {
+      background: #fff;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      max-width: 500px;
+      width: 90%;
+      max-height: 95vh;
+      overflow-y: auto;
+    }
+
+    /* CSS BARU UNTUK LOGO */
+    .menu-logo {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .menu-btn {
+      display: inline-block;
+      padding: 15px 30px;
+      margin: 10px;
+      background: #dc5f45;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Voltaire', sans-serif;
+      font-size: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-transform: uppercase;
+    }
+
+    .menu-btn:hover { background: #b44b39; }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .checkbox-group label {
+      font-size: 24px;
+      background: #f1f1f1;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #544027;
+      display: flex;
+      align-items: center;
+      user-select: none;
+    }
+
+    .checkbox-group input {
+      transform: scale(1.5);
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .opt-btn {
+      width: 46%;
+      margin: 2%;
+      font-size: 28px;
+      padding: 20px 0;
+    }
+
+    /* Original UI elements */
+    #gameoverInstructions {
+      position: absolute;
+      font-family: 'Voltaire', sans-serif;
+      text-align: center;
+      opacity: 0;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -100%);
+      user-select: none;
+      transition: all 500ms ease-in-out;
+      pointer-events: none;
+      z-index: 50;
+      width: 100%;
+    }
+
+    #gameoverInstructions.show {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+    }
+
+    .go-title {
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 100px;
+      color: #ffc5a2;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+    }
+
+    #dist {
+      position: absolute;
+      left: 50%;
+      top: 30px;
+      transform: translate(-50%, 0%);
+      user-select: none;
+      z-index: 10;
+      background: rgba(255,255,255,0.6);
+      padding: 10px 30px;
+      border-radius: 15px;
+    }
+
+    .label {
+      font-family: 'Voltaire', sans-serif;
+      text-transform: uppercase;
+      color: #ffa873;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-align: center;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    #distValue {
+      text-transform: uppercase;
+      color: #dc5f45;
+      font-size: 40px;
+      font-family: 'Voltaire', sans-serif;
+      text-align: center;
+      line-height: 1;
+    }
+
+    #instructions {
+      position: absolute;
+      width: 100%;
+      bottom: 20px;
+      font-family: 'Voltaire', sans-serif;
+      color: #dc5f45;
+      font-size: 16px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-align: center;
+      user-select: none;
+      z-index: 10;
+    }
+
+    .lightInstructions { color: #5f9042; }
+
+    /* OPTIMASI MOBILE: CSS Media Queries */
+    @media (max-width: 700px) {
+      .go-title { font-size: 60px; }
+      #instructions { font-size: 13px; padding: 0 10px; }
+      #distValue { font-size: 30px; }
+      
+      .menu-box { padding: 20px; }
+      .menu-btn { font-size: 16px; padding: 12px 20px; width: 90%; margin: 5px auto; }
+      
+      .checkbox-group { gap: 8px; margin: 15px 0;}
+      .checkbox-group label { font-size: 20px; padding: 8px 15px; width: 45%; justify-content: center;}
+      
+      .opt-btn { font-size: 24px; padding: 15px 0; }
+      #questionText { font-size: 26px; margin: 10px 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="world"></div>
+
+  <!-- Start Menu Overlay -->
+  <div id="startMenuOverlay" class="overlay-ui">
+    <div class="menu-box">
+      <!-- LOGO BARU DARI GITHUB -->
+      <img src="https://raw.githubusercontent.com/dosen-uinsi/RABBIT-RUN-BY-MATHNOLOGY/refs/heads/main/RABBIT%20RUN.png" alt="Rabbit Run Logo" class="menu-logo">
+      
+      <!-- Pemilihan Mode -->
+      <div id="modeSelection">
+        <button class="menu-btn" onclick="startGameMode('normal')">Bermain Saja</button>
+        <button class="menu-btn" onclick="startGameMode('math')">Main + Perkalian</button>
+      </div>
+
+      <!-- Pemilihan Angka Perkalian -->
+      <div id="multiplierSelection" style="display:none;">
+        <h3 style="color:#544027; margin-bottom: 10px; font-size: 22px; text-transform:uppercase;">Pilih Angka Perkalian:</h3>
+        <div class="checkbox-group">
+          <label><input type="checkbox" class="mul-cb" value="2" checked> 2</label>
+          <label><input type="checkbox" class="mul-cb" value="3" checked> 3</label>
+          <label><input type="checkbox" class="mul-cb" value="4"> 4</label>
+          <label><input type="checkbox" class="mul-cb" value="5"> 5</label>
+          <label><input type="checkbox" class="mul-cb" value="6"> 6</label>
+          <label><input type="checkbox" class="mul-cb" value="7"> 7</label>
+          <label><input type="checkbox" class="mul-cb" value="8"> 8</label>
+          <label><input type="checkbox" class="mul-cb" value="9"> 9</label>
+        </div>
+        <button class="menu-btn" onclick="startMathGame()">Mulai Bermain</button>
+        <button class="menu-btn" style="background:#a49789;" onclick="backToMode()">Kembali</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Question Overlay -->
+  <div id="questionOverlay" class="overlay-ui">
+    <div class="menu-box" style="padding: 30px 20px;">
+      <h2 id="questionText" style="color:#544027;">2 x 3 = ?</h2>
+      <div id="optionsContainer" class="options-grid"></div>
+    </div>
+  </div>
+
+  <div id="gameoverInstructions">
+    <div class="go-title">Game Over</div>
+    <div style="color: #544027; font-size: 16px; margin-bottom: 20px;">Sentuh sembarang tempat di layar untuk main lagi</div>
+    <button class="menu-btn" style="width: auto; padding: 10px 20px;" onclick="returnToMenu()">Menu Utama</button>
+  </div>
+
+  <div id="dist">
+    <div class="label">Jarak</div>
+    <div id="distValue">0</div>
+  </div>
+
+  <div id="instructions">
+    Sentuh layar untuk melompat
+    <span class="lightInstructions"><br>Ambil wortel / Hindari landak</span>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r80/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.0/TweenMax.min.js"></script>
+
+  <script>
+    if (window.THREE && !THREE.CubeGeometry && THREE.BoxGeometry) {
+      THREE.CubeGeometry = THREE.BoxGeometry;
+    }
+  </script>
+
+  <script>
+var scene, camera, fieldOfView, aspectRatio, nearPlane, farPlane,
+  globalLight, shadowLight, renderer, container, clock;
+var delta = 0;
+var floorRadius = 200;
+var speed = 6;
+var distance = 0;
+var level = 1;
+var levelInterval;
+var levelUpdateFreq = 3000;
+var initSpeed = 5;
+var maxSpeed = 48;
+var monsterPos = .65;
+var monsterPosTarget = .65;
+var floorRotation = 0;
+var collisionObstacle = 10;
+var collisionBonus = 20;
+
+var gameStatus = "menu"; 
+var mathMode = false;
+var selectedMultipliers = [];
+
+var cameraPosGame = 160;
+var cameraPosGameOver = 260;
+var monsterAcceleration = 0.004;
+var malusClearColor = 0xb44b39;
+var malusClearAlpha = 0;
+var audio = new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/264161/Antonio-Vivaldi-Summer_01.mp3');
+audio.loop = true;
+
+var fieldGameOver, fieldDistance;
+var HEIGHT, WIDTH, windowHalfX, windowHalfY;
+
+var hero, monster, carrot, obstacle, bonusParticles, floor;
+
+var blackMat = new THREE.MeshPhongMaterial({ color: 0x100707, shading:THREE.FlatShading });
+var brownMat = new THREE.MeshPhongMaterial({ color: 0xb44b39, shininess:0, shading:THREE.FlatShading });
+var greenMat = new THREE.MeshPhongMaterial({ color: 0x7abf8e, shininess:0, shading:THREE.FlatShading });
+var pinkMat = new THREE.MeshPhongMaterial({ color: 0xdc5f45, shininess:0, shading:THREE.FlatShading });
+var lightBrownMat = new THREE.MeshPhongMaterial({ color: 0xe07a57, shading:THREE.FlatShading });
+var whiteMat = new THREE.MeshPhongMaterial({ color: 0xa49789, shading:THREE.FlatShading });
+
+var PI = Math.PI;
+
+function initScreenAnd3D() {
+  HEIGHT = window.innerHeight;
+  WIDTH = window.innerWidth;
+  windowHalfX = WIDTH / 2;
+  windowHalfY = HEIGHT / 2;
+
+  scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0xd6eae6, 160,350);
+  
+  aspectRatio = WIDTH / HEIGHT;
+  fieldOfView = 50;
+  nearPlane = 1;
+  farPlane = 2000;
+  camera = new THREE.PerspectiveCamera(fieldOfView, aspectRatio, nearPlane, farPlane);
+  camera.position.set(0, 30, cameraPosGame);
+  camera.lookAt(new THREE.Vector3(0, 30, 0));
+
+  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio); 
+  renderer.setClearColor( malusClearColor, malusClearAlpha);
+  renderer.setSize(WIDTH, HEIGHT);
+  if (renderer.shadowMap) renderer.shadowMap.enabled = true;
+
+  container = document.getElementById('world');
+  container.appendChild(renderer.domElement);
+
+  window.addEventListener('resize', handleWindowResize, false);
+  
+  // OPTIMASI MOBILE: Mengelola event sentuhan dengan aman
+  document.addEventListener('mousedown', handleInput, false);
+  document.addEventListener('touchstart', handleInput, {passive: false});
+  
+  clock = new THREE.Clock();
+}
+
+function handleWindowResize() {
+  HEIGHT = window.innerHeight;
+  WIDTH = window.innerWidth;
+  windowHalfX = WIDTH / 2;
+  windowHalfY = HEIGHT / 2;
+  renderer.setSize(WIDTH, HEIGHT);
+  camera.aspect = WIDTH / HEIGHT;
+  camera.updateProjectionMatrix();
+}
+
+function handleInput(event){
+  // OPTIMASI MOBILE: Abaikan jika yang ditekan adalah area UI/Menu
+  if (event.target.closest('.overlay-ui') || 
+      event.target.closest('#gameoverInstructions button') || 
+      event.target.tagName.toLowerCase() === 'input' || 
+      event.target.tagName.toLowerCase() === 'label') {
+    return;
+  }
+
+  if(event.type === 'touchstart' && gameStatus === "play") {
+    event.preventDefault(); 
+  }
+
+  if (gameStatus == "play") {
+    hero.jump();
+  } else if (gameStatus == "readyToReplay") {
+    replay();
+  }
+}
+
+function createLights() {
+  globalLight = new THREE.AmbientLight(0xffffff, .9);
+  shadowLight = new THREE.DirectionalLight(0xffffff, 1);
+  shadowLight.position.set(-30, 40, 20);
+  shadowLight.castShadow = true;
+  shadowLight.shadow.camera.left = -400; shadowLight.shadow.camera.right = 400;
+  shadowLight.shadow.camera.top = 400; shadowLight.shadow.camera.bottom = -400;
+  shadowLight.shadow.camera.near = 1; shadowLight.shadow.camera.far = 2000;
+  shadowLight.shadow.mapSize.width = shadowLight.shadow.mapSize.height = 2048;
+  scene.add(globalLight); scene.add(shadowLight);
+}
+
+function createFloor() {
+  var floorShadow = new THREE.Mesh(new THREE.SphereGeometry(floorRadius, 50, 50), new THREE.MeshPhongMaterial({
+    color: 0x7abf8e, specular:0x000000, shininess:1, transparent:true, opacity:.5
+  }));
+  floorShadow.receiveShadow = true;
+  var floorGrass = new THREE.Mesh(new THREE.SphereGeometry(floorRadius-.5, 50, 50), new THREE.MeshBasicMaterial({ color: 0x7abf8e }));
+  floorGrass.receiveShadow = false;
+  floor = new THREE.Group(); floor.position.y = -floorRadius;
+  floor.add(floorShadow); floor.add(floorGrass); scene.add(floor);
+}
+
+Hero = function() {
+  this.status = "running"; this.runningCycle = 0;
+  this.mesh = new THREE.Group(); this.body = new THREE.Group(); this.mesh.add(this.body);
+  var torsoGeom = new THREE.CubeGeometry(7, 7, 10, 1);
+  this.torso = new THREE.Mesh(torsoGeom, brownMat); this.torso.position.y = 7;
+  this.body.add(this.torso);
+  var pantsGeom = new THREE.CubeGeometry(9, 9, 5, 1);
+  this.pants = new THREE.Mesh(pantsGeom, whiteMat); this.pants.position.z = -3;
+  this.torso.add(this.pants);
+  var tailGeom = new THREE.CubeGeometry(3, 3, 3, 1);
+  tailGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,-2));
+  this.tail = new THREE.Mesh(tailGeom, lightBrownMat); this.tail.position.set(0, 5, -4);
+  this.torso.add(this.tail); this.torso.rotation.x = -Math.PI/8;
+  var headGeom = new THREE.CubeGeometry(10, 10, 13, 1);
+  headGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,7.5));
+  this.head = new THREE.Mesh(headGeom, brownMat); this.head.position.set(0, 11, 2);
+  this.body.add(this.head);
+  var cheekGeom = new THREE.CubeGeometry(1, 4, 4, 1);
+  this.cheekR = new THREE.Mesh(cheekGeom, pinkMat); this.cheekR.position.set(-5, -2.5, 7);
+  this.head.add(this.cheekR);
+  this.cheekL = this.cheekR.clone(); this.cheekL.position.x = - this.cheekR.position.x;
+  this.head.add(this.cheekL);
+  var noseGeom = new THREE.CubeGeometry(6, 6, 3, 1);
+  this.nose = new THREE.Mesh(noseGeom, lightBrownMat); this.nose.position.set(0, 2.6, 13.5);
+  this.head.add(this.nose);
+  var mouthGeom = new THREE.CubeGeometry(4, 2, 4, 1);
+  mouthGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,3));
+  mouthGeom.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI/12));
+  this.mouth = new THREE.Mesh(mouthGeom, brownMat); this.mouth.position.set(0, -4, 8);
+  this.head.add(this.mouth);
+  var pawFGeom = new THREE.CubeGeometry(3,3,3, 1);
+  this.pawFR = new THREE.Mesh(pawFGeom, lightBrownMat); this.pawFR.position.set(-2, 1.5, 6);
+  this.body.add(this.pawFR);
+  this.pawFL = this.pawFR.clone(); this.pawFL.position.x = - this.pawFR.position.x;
+  this.body.add(this.pawFL);
+  var pawBGeom = new THREE.CubeGeometry(3,3,6, 1);
+  this.pawBL = new THREE.Mesh(pawBGeom, lightBrownMat); this.pawBL.position.set(5, 1.5, 0);
+  this.body.add(this.pawBL);
+  this.pawBR = this.pawBL.clone(); this.pawBR.position.x = - this.pawBL.position.x;
+  this.body.add(this.pawBR);
+  var earGeom = new THREE.CubeGeometry(7, 18, 2, 1);
+  earGeom.vertices[6].x+=2; earGeom.vertices[6].z+=.5; earGeom.vertices[7].x+=2; earGeom.vertices[7].z-=.5;
+  earGeom.vertices[2].x-=2; earGeom.vertices[2].z-=.5; earGeom.vertices[3].x-=2; earGeom.vertices[3].z+=.5;
+  earGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0,9,0));
+  this.earL = new THREE.Mesh(earGeom, brownMat); this.earL.position.set(2, 5, 2.5); this.earL.rotation.z = -Math.PI/12;
+  this.head.add(this.earL);
+  this.earR = this.earL.clone(); this.earR.position.x = -this.earL.position.x; this.earR.rotation.z = -this.earL.rotation.z;
+  this.head.add(this.earR);
+  var eyeGeom = new THREE.CubeGeometry(2,4,4);
+  this.eyeL = new THREE.Mesh(eyeGeom, whiteMat); this.eyeL.position.set(5, 2.9, 5.5);
+  this.head.add(this.eyeL);
+  var irisGeom = new THREE.CubeGeometry(.6,2,2);
+  this.iris = new THREE.Mesh(irisGeom, blackMat); this.iris.position.set(1.2, 1, 1);
+  this.eyeL.add(this.iris);
+  this.eyeR = this.eyeL.clone(); this.eyeR.children[0].position.x = -this.iris.position.x; this.eyeR.position.x = -this.eyeL.position.x;
+  this.head.add(this.eyeR);
+  this.body.traverse(function(object) { if (object instanceof THREE.Mesh) { object.castShadow = true; object.receiveShadow = true; } });
+}
+
+Hero.prototype.run = function(){
+  this.status = "running";
+  var s = Math.min(speed,maxSpeed); this.runningCycle += delta * s * .7; this.runningCycle = this.runningCycle % (Math.PI*2);
+  var t = this.runningCycle; var amp = 4; var disp = .2;
+  this.body.position.y = 6+ Math.sin(t - Math.PI/2)*amp; this.body.rotation.x = .2 + Math.sin(t - Math.PI/2)*amp*.1;
+  this.torso.rotation.x =  Math.sin(t - Math.PI/2)*amp*.1; this.torso.position.y =  7 + Math.sin(t - Math.PI/2)*amp*.5;
+  this.mouth.rotation.x = Math.PI/16 + Math.cos(t)*amp*.05;
+  this.head.position.z = 2 + Math.sin(t - Math.PI/2)*amp*.5; this.head.position.y = 8 + Math.cos(t - Math.PI/2)*amp*.7;
+  this.head.rotation.x = -.2 + Math.sin(t + Math.PI)*amp*.1;
+  this.earL.rotation.x = Math.cos(-Math.PI/2 + t)*(amp*.2); this.earR.rotation.x = Math.cos(-Math.PI/2 + .2 + t)*(amp*.3);
+  this.eyeR.scale.y = this.eyeL.scale.y = .7 +  Math.abs(Math.cos(-Math.PI/4 + t*.5))*.6;
+  this.tail.rotation.x = Math.cos(Math.PI/2 + t)*amp*.3;
+  this.pawFR.position.y = 1.5 + Math.sin(t)*amp; this.pawFR.rotation.x = Math.cos(t ) * Math.PI/4; this.pawFR.position.z = 6 - Math.cos(t)*amp*2;
+  this.pawFL.position.y = 1.5 + Math.sin(disp + t)*amp; this.pawFL.rotation.x = Math.cos( t ) * Math.PI/4; this.pawFL.position.z = 6 - Math.cos(disp+t)*amp*2;
+  this.pawBR.position.y = 1.5 + Math.sin(Math.PI + t)*amp; this.pawBR.rotation.x = Math.cos(t + Math.PI*1.5) * Math.PI/3; this.pawBR.position.z = - Math.cos(Math.PI + t)*amp;
+  this.pawBL.position.y = 1.5 + Math.sin(Math.PI + t)*amp; this.pawBL.rotation.x = Math.cos(t + Math.PI *1.5) * Math.PI/3; this.pawBL.position.z = - Math.cos(Math.PI + t)*amp;
+}
+
+Hero.prototype.jump = function(){
+  if (this.status == "jumping") return;
+  this.status = "jumping"; var _this = this; var totalSpeed = 10 / speed; var jumpHeight = 45;
+  TweenMax.to(this.earL.rotation, totalSpeed, {x:"+=.3", ease:Back.easeOut}); TweenMax.to(this.earR.rotation, totalSpeed, {x:"-=.3", ease:Back.easeOut});
+  TweenMax.to(this.pawFL.rotation, totalSpeed, {x:"+=.7", ease:Back.easeOut}); TweenMax.to(this.pawFR.rotation, totalSpeed, {x:"-=.7", ease:Back.easeOut});
+  TweenMax.to(this.pawBL.rotation, totalSpeed, {x:"+=.7", ease:Back.easeOut}); TweenMax.to(this.pawBR.rotation, totalSpeed, {x:"-=.7", ease:Back.easeOut});
+  TweenMax.to(this.tail.rotation, totalSpeed, {x:"+=1", ease:Back.easeOut}); TweenMax.to(this.mouth.rotation, totalSpeed, {x:.5, ease:Back.easeOut});
+  TweenMax.to(this.mesh.position, totalSpeed/2, {y:jumpHeight, ease:Power2.easeOut});
+  TweenMax.to(this.mesh.position, totalSpeed/2, {y:0, ease:Power4.easeIn, delay:totalSpeed/2, onComplete: function(){ _this.status="running"; }});
+}
+
+Hero.prototype.nod = function(){
+  var _this = this; var sp = .5 + Math.random();
+  TweenMax.to(this.head.rotation, sp, {y:-Math.PI/6 + Math.random()* Math.PI/3, ease:Power4.easeInOut, onComplete:function(){_this.nod()}});
+  TweenMax.to(this.earL.rotation, sp, {x:Math.PI/4 + Math.random()* Math.PI/6, ease:Power4.easeInOut}); TweenMax.to(this.earR.rotation, sp, {x:Math.PI/4 + Math.random()* Math.PI/6, ease:Power4.easeInOut});
+  TweenMax.to(this.pawBL.rotation, sp/2, {x:Math.random()*Math.PI/2, ease:Power1.easeInOut, yoyo:true, repeat:2}); TweenMax.to(this.pawBL.position, sp/2, {y:-4 + Math.random()*8, ease:Power1.easeInOut, yoyo:true, repeat:2});
+  TweenMax.to(this.pawBR.rotation, sp/2, {x:Math.random()*Math.PI/2, ease:Power1.easeInOut, yoyo:true, repeat:2}); TweenMax.to(this.pawBR.position, sp/2, {y:-4 + Math.random()*8, ease:Power1.easeInOut, yoyo:true, repeat:2});
+  TweenMax.to(this.pawFL.rotation, sp/2, {x:Math.random()*Math.PI/2, ease:Power1.easeInOut, yoyo:true, repeat:2}); TweenMax.to(this.pawFL.position, sp/2, {y:-4 + Math.random()*8, ease:Power1.easeInOut, yoyo:true, repeat:2});
+  TweenMax.to(this.pawFR.rotation, sp/2, {x:Math.random()*Math.PI/2, ease:Power1.easeInOut, yoyo:true, repeat:2}); TweenMax.to(this.pawFR.position, sp/2, {y:-4 + Math.random()*8, ease:Power1.easeInOut, yoyo:true, repeat:2});
+  TweenMax.to(this.mouth.rotation, sp, {x:Math.random()*Math.PI/8, ease:Power1.easeInOut});
+  TweenMax.to([this.iris.position, this.eyeR.children[0].position], sp, {y:-1 + Math.random()*2, z:-1 + Math.random()*2, ease:Power1.easeInOut});
+  if (Math.random()>.2) TweenMax.to([this.eyeR.scale, this.eyeL.scale], sp/8, {y:0, ease:Power1.easeInOut, yoyo:true, repeat:1});
+}
+
+Hero.prototype.hang = function(){
+  var _this = this; var sp = 1; var ease = Power4.easeOut;
+  TweenMax.killTweensOf(this.eyeL.scale); TweenMax.killTweensOf(this.eyeR.scale);
+  this.body.rotation.x = 0; this.torso.rotation.x = 0; this.body.position.y = 0; this.torso.position.y = 7;
+  TweenMax.to(this.mesh.rotation, sp, {y:0, ease:ease}); TweenMax.to(this.mesh.position, sp, {y:-7, z:6, ease:ease});
+  TweenMax.to(this.head.rotation, sp, {x:Math.PI/6, ease:ease, onComplete:function(){_this.nod();}});
+  TweenMax.to(this.earL.rotation, sp, {x:Math.PI/3, ease:ease}); TweenMax.to(this.earR.rotation, sp, {x:Math.PI/3, ease:ease});
+  TweenMax.to(this.pawFL.position, sp, {y:-1, z:3, ease:ease}); TweenMax.to(this.pawFR.position, sp, {y:-1, z:3, ease:ease});
+  TweenMax.to(this.pawBL.position, sp, {y:-2, z:-3, ease:ease}); TweenMax.to(this.pawBR.position, sp, {y:-2, z:-3, ease:ease});
+  TweenMax.to(this.eyeL.scale, sp, {y:1, ease:ease}); TweenMax.to(this.eyeR.scale, sp, {y:1, ease:ease});
+}
+
+Monster = function(){
+  this.runningCycle = 0; this.mesh = new THREE.Group(); this.body = new THREE.Group();
+  var torsoGeom = new THREE.CubeGeometry(15,15,20, 1); this.torso = new THREE.Mesh(torsoGeom, blackMat);
+  var headGeom = new THREE.CubeGeometry(20,20,40, 1); headGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,20));
+  this.head = new THREE.Mesh(headGeom, blackMat); this.head.position.set(0, 2, 12);
+  var mouthGeom = new THREE.CubeGeometry(10,4,20, 1); mouthGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0,-2,10));
+  this.mouth = new THREE.Mesh(mouthGeom, blackMat); this.mouth.position.set(0, -8, 4); this.mouth.rotation.x = .4;
+  this.heroHolder = new THREE.Group(); this.heroHolder.position.z = 20; this.mouth.add(this.heroHolder);
+  
+  var toothGeom = new THREE.CubeGeometry(2,2,1,1);
+  toothGeom.vertices[1].x-=1; toothGeom.vertices[4].x+=1; toothGeom.vertices[5].x+=1; toothGeom.vertices[0].x-=1;
+  for(var i=0; i<3; i++){
+    var toothf = new THREE.Mesh(toothGeom, whiteMat); toothf.position.set(-2.8 + i*2.5, 1, 19);
+    var toothl = new THREE.Mesh(toothGeom, whiteMat); toothl.rotation.y = Math.PI/2; toothl.position.set(4, 1, 12 + i*2.5);
+    var toothr = toothl.clone(); toothr.position.x = -4;
+    this.mouth.add(toothf); this.mouth.add(toothl); this.mouth.add(toothr);
+  }
+  var tongueGeometry = new THREE.CubeGeometry(6,1,14); tongueGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,7));
+  this.tongue = new THREE.Mesh(tongueGeometry, pinkMat); this.tongue.position.z = 2; this.tongue.rotation.x = -.2; this.mouth.add(this.tongue);
+  var noseGeom = new THREE.CubeGeometry(4,4,4, 1); this.nose = new THREE.Mesh(noseGeom, pinkMat); this.nose.position.set(0, 9, 39.5); this.head.add(this.nose);
+  this.head.add(this.mouth);
+  var eyeGeom = new THREE.CubeGeometry(2,3,3); this.eyeL = new THREE.Mesh(eyeGeom, whiteMat); this.eyeL.position.set(10, 5, 5); this.head.add(this.eyeL);
+  var irisGeom = new THREE.CubeGeometry(.6,1,1); this.iris = new THREE.Mesh(irisGeom, blackMat); this.iris.position.set(1.2, -1, 1); this.eyeL.add(this.iris);
+  this.eyeR = this.eyeL.clone(); this.eyeR.children[0].position.x = -this.iris.position.x; this.eyeR.position.x = -this.eyeL.position.x; this.head.add(this.eyeR);
+  var earGeom = new THREE.CubeGeometry(8, 6, 2, 1);
+  earGeom.vertices[1].x-=4; earGeom.vertices[4].x+=4; earGeom.vertices[5].x+=4; earGeom.vertices[5].z-=2; earGeom.vertices[0].x-=4; earGeom.vertices[0].z-=2;
+  earGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0,3,0));
+  this.earL = new THREE.Mesh(earGeom, blackMat); this.earL.position.set(6, 10, 1); this.head.add(this.earL);
+  this.earR = this.earL.clone(); this.earR.position.x = -this.earL.position.x; this.earR.rotation.z = -this.earL.rotation.z; this.head.add(this.earR);
+  var tailGeom = new THREE.CylinderGeometry(5,2, 20, 4, 1);
+  tailGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0,10,0)); tailGeom.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI/2)); tailGeom.applyMatrix(new THREE.Matrix4().makeRotationZ(Math.PI/4));
+  this.tail = new THREE.Mesh(tailGeom, blackMat); this.tail.position.set(0, 4, -10); this.torso.add(this.tail);
+  var pawGeom = new THREE.CylinderGeometry(1.5,0,10); pawGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0,-5,0));
+  this.pawFL = new THREE.Mesh(pawGeom, blackMat); this.pawFL.position.set(5.5, -7.5, 8.5); this.torso.add(this.pawFL);
+  this.pawFR = this.pawFL.clone(); this.pawFR.position.x = - this.pawFL.position.x; this.torso.add(this.pawFR);
+  this.pawBR = this.pawFR.clone(); this.pawBR.position.z = - this.pawFL.position.z; this.torso.add(this.pawBR);
+  this.pawBL = this.pawBR.clone(); this.pawBL.position.x = this.pawFL.position.x; this.torso.add(this.pawBL);
+  this.mesh.add(this.body); this.torso.add(this.head); this.body.add(this.torso);
+  this.torso.castShadow = true; this.head.castShadow = true; this.pawFL.castShadow = true; this.pawFR.castShadow = true; this.pawBL.castShadow = true; this.pawBR.castShadow = true;
+  this.body.rotation.y = Math.PI/2;
+}
+
+Monster.prototype.run = function(){
+  var s = Math.min(speed,maxSpeed); this.runningCycle += delta * s * .7; this.runningCycle = this.runningCycle % (Math.PI*2);
+  var t = this.runningCycle;
+  this.pawFR.rotation.x = Math.sin(t)*Math.PI/4; this.pawFR.position.set(this.pawFR.position.x, -5.5 - Math.sin(t), 7.5 + Math.cos(t));
+  this.pawFL.rotation.x = Math.sin(t+.4)*Math.PI/4; this.pawFL.position.set(this.pawFL.position.x, -5.5 - Math.sin(t+.4), 7.5 + Math.cos(t+.4));
+  this.pawBL.rotation.x = Math.sin(t+2)*Math.PI/4; this.pawBL.position.set(this.pawBL.position.x, -5.5 - Math.sin(t+3.8), -7.5 + Math.cos(t+3.8));
+  this.pawBR.rotation.x = Math.sin(t+2.4)*Math.PI/4; this.pawBR.position.set(this.pawBR.position.x, -5.5 - Math.sin(t+3.4), -7.5 + Math.cos(t+3.4));
+  this.torso.rotation.x = Math.sin(t)*Math.PI/8; this.torso.position.y = 3-Math.sin(t+Math.PI/2)*3;
+  this.head.rotation.x = -.1+Math.sin(-t-1)*.4; this.mouth.rotation.x = .2 + Math.sin(t+Math.PI+.3)*.4;
+  this.tail.rotation.x = .2 + Math.sin(t-Math.PI/2); this.eyeR.scale.y = .5 + Math.sin(t+Math.PI)*.5;
+}
+
+Monster.prototype.nod = function(){
+  var _this = this; var sp = 1 + Math.random()*2;
+  TweenMax.to(this.head.rotation, sp, {x:Math.PI/3 - .2 + Math.random()*.4, y:-Math.PI/3 + Math.random()*.5, ease:Power4.easeInOut, onComplete:function(){_this.nod()}});
+  TweenMax.to(this.tail.rotation, sp/8, {y:-Math.PI/4, ease:Power1.easeInOut, yoyo:true, repeat:8});
+  TweenMax.to([this.eyeR.scale, this.eyeL.scale], sp/20, {y:0, ease:Power1.easeInOut, yoyo:true, repeat:1});
+}
+
+Monster.prototype.sit = function(){
+  var sp = 1.2; var ease = Power4.easeOut; var _this = this;
+  TweenMax.to(this.torso.rotation, sp, {x:-1.3, ease:ease});
+  TweenMax.to(this.torso.position, sp, {y:-5, ease:ease, onComplete:function(){ _this.nod(); gameStatus = "readyToReplay"; }});
+  TweenMax.to(this.head.rotation, sp, {x:Math.PI/3, y :-Math.PI/3, ease:ease}); TweenMax.to(this.tail.rotation, sp, {x:2, y:Math.PI/4, ease:ease});
+  TweenMax.to(this.pawBL.rotation, sp, {x:-.1, ease:ease}); TweenMax.to(this.pawBR.rotation, sp, {x:-.1, ease:ease});
+  TweenMax.to(this.pawFL.rotation, sp, {x:1, ease:ease}); TweenMax.to(this.pawFR.rotation, sp, {x:1, ease:ease});
+  TweenMax.to(this.mouth.rotation, sp, {x:.3, ease:ease}); TweenMax.to(this.eyeL.scale, sp, {y:1, ease:ease}); TweenMax.to(this.eyeR.scale, sp, {y:1, ease:ease});
+}
+
+Carrot = function() {
+  this.angle = 0; this.mesh = new THREE.Group();
+  var bodyGeom = new THREE.CylinderGeometry(5,3, 10, 4,1); bodyGeom.vertices[8].y+=2; bodyGeom.vertices[9].y-=3;
+  this.body = new THREE.Mesh(bodyGeom, pinkMat);
+  var leafGeom = new THREE.CubeGeometry(5,10,1,1); leafGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0,5,0));
+  leafGeom.vertices[2].x-=1; leafGeom.vertices[3].x-=1; leafGeom.vertices[6].x+=1; leafGeom.vertices[7].x+=1;
+  this.leaf1 = new THREE.Mesh(leafGeom,greenMat); this.leaf1.position.y = 7; this.leaf1.rotation.set(.2, 0, .3);
+  this.leaf2 = this.leaf1.clone(); this.leaf2.scale.set(1,1.3,1); this.leaf2.rotation.set(-.2, 0, -.3);
+  this.mesh.add(this.body); this.mesh.add(this.leaf1); this.mesh.add(this.leaf2);
+  this.body.traverse(function(object) { if (object instanceof THREE.Mesh) { object.castShadow = true; object.receiveShadow = true; } });
+}
+
+Hedgehog = function() {
+  this.angle = 0; this.status="ready"; this.mesh = new THREE.Group();
+  var bodyGeom = new THREE.CubeGeometry(6,6,6,1); this.body = new THREE.Mesh(bodyGeom, blackMat);
+  var headGeom = new THREE.CubeGeometry(5,5,7,1); this.head= new THREE.Mesh(headGeom, lightBrownMat); this.head.position.set(0, -.5, 6);
+  var noseGeom = new THREE.CubeGeometry(1.5,1.5,1.5,1); this.nose = new THREE.Mesh(noseGeom, blackMat); this.nose.position.set(0, 2, 4);
+  var eyeGeom = new THREE.CubeGeometry(1,3,3); this.eyeL = new THREE.Mesh(eyeGeom, whiteMat); this.eyeL.position.set(2.2, .8, -.5); this.head.add(this.eyeL);
+  var irisGeom = new THREE.CubeGeometry(.5,1,1); this.iris = new THREE.Mesh(irisGeom, blackMat); this.iris.position.set(.5, .8, .8); this.eyeL.add(this.iris);
+  this.eyeR = this.eyeL.clone(); this.eyeR.children[0].position.x = -this.iris.position.x; this.eyeR.position.x = -this.eyeL.position.x;
+  var spikeGeom = new THREE.CubeGeometry(.5,2,.5,1); spikeGeom.applyMatrix(new THREE.Matrix4().makeTranslation(0,1,0));
+  for (var i=0; i<9; i++){ 
+    var row = (i%3); var col = Math.floor(i/3);
+    var sb = new THREE.Mesh(spikeGeom, blackMat); sb.rotation.x =-Math.PI/2 + (Math.PI/12*row) -.5 +  Math.random(); sb.position.set(-2 + col*2, -2 + row*2, -3); this.body.add(sb); 
+    var st = new THREE.Mesh(spikeGeom, blackMat); st.position.set(-2 + row*2, 3, -2 + col*2); st.rotation.z = Math.PI/6 - (Math.PI/6*row) -.5 +  Math.random(); this.body.add(st);
+    var sr = new THREE.Mesh(spikeGeom, blackMat); sr.position.set(3, -2 + row*2, -2 + col*2); sr.rotation.z = -Math.PI/2 + (Math.PI/12*row) -.5 +  Math.random(); this.body.add(sr);
+    var sl = new THREE.Mesh(spikeGeom, blackMat); sl.position.set(-3, -2 + row*2, -2 + col*2); sl.rotation.z = Math.PI/2  - (Math.PI/12*row) -.5 +  Math.random(); this.body.add(sl); 
+  }
+  this.head.add(this.eyeR);
+  var earGeom = new THREE.CubeGeometry(2, 2, .5, 1); this.earL = new THREE.Mesh(earGeom, lightBrownMat); this.earL.position.set(2.5, 2.5, -2.5); this.earL.rotation.z = -Math.PI/12; this.head.add(this.earL);
+  this.earR = this.earL.clone(); this.earR.position.x = -this.earL.position.x; this.earR.rotation.z = -this.earL.rotation.z; this.head.add(this.earR);
+  var mouthGeom = new THREE.CubeGeometry( 1, 1,.5, 1); this.mouth = new THREE.Mesh(mouthGeom, blackMat); this.mouth.position.set(0, -1.5, 3.5); this.head.add(this.mouth);
+  this.mesh.add(this.body); this.body.add(this.head); this.head.add(this.nose);
+  this.mesh.traverse(function(object) { if (object instanceof THREE.Mesh) { object.castShadow = true; object.receiveShadow = true; } });
+}
+
+Hedgehog.prototype.nod = function(){
+  var _this = this; var speed = .1 + Math.random()*.5; var angle = -Math.PI/4 + Math.random()*Math.PI/2;
+  TweenMax.to(this.head.rotation, speed, {y:angle, onComplete:function(){ _this.nod(); }});
+}
+
+BonusParticles = function(){
+  this.mesh = new THREE.Group();
+  var bigParticleGeom = new THREE.CubeGeometry(10,10,10,1); var smallParticleGeom = new THREE.CubeGeometry(5,5,5,1);
+  this.parts = [];
+  for (var i=0; i<10; i++){
+    var partPink = new THREE.Mesh(bigParticleGeom, pinkMat); var partGreen = new THREE.Mesh(smallParticleGeom, greenMat); partGreen.scale.set(.5,.5,.5);
+    this.parts.push(partPink); this.parts.push(partGreen); this.mesh.add(partPink); this.mesh.add(partGreen);
+  }
+}
+
+BonusParticles.prototype.explose = function(){
+  var explosionSpeed = .5;
+  for(var i=0; i<this.parts.length; i++){
+    var tx = -50 + Math.random()*100; var ty = -50 + Math.random()*100; var tz = -50 + Math.random()*100;
+    var p = this.parts[i]; p.position.set(0,0,0); p.scale.set(1,1,1); p.visible = true;
+    var s = explosionSpeed + Math.random()*.5;
+    TweenMax.to(p.position, s,{x:tx, y:ty, z:tz, ease:Power4.easeOut});
+    TweenMax.to(p.scale, s,{x:.01, y:.01, z:.01, ease:Power4.easeOut, onComplete:function(p){p.visible=false;}, onCompleteParams:[p]});
+  }
+}
+
+Tree = function(){
+  this.mesh = new THREE.Object3D(); this.trunc = new Trunc(); this.mesh.add(this.trunc.mesh);
+}
+
+Trunc = function(){
+  var truncHeight = 50 + Math.random()*150; var topRadius = 1+Math.random()*5; var bottomRadius = 5+Math.random()*5;
+  var mats = [blackMat, brownMat, pinkMat, whiteMat, greenMat, lightBrownMat, pinkMat]; var matTrunc = blackMat;
+  var geom = new THREE.CylinderGeometry(topRadius,bottomRadius,truncHeight, 3, 3); geom.applyMatrix(new THREE.Matrix4().makeTranslation(0,truncHeight/2,0));
+  this.mesh = new THREE.Mesh(geom, matTrunc);
+  for (var i=0; i<geom.vertices.length; i++){
+    var noise = Math.random(); var v = geom.vertices[i];
+    v.x += -noise + Math.random()*noise*2; v.y += -noise + Math.random()*noise*2; v.z += -noise + Math.random()*noise*2;
+    geom.computeVertexNormals();
+    if (Math.random()>.7){
+      var size = Math.random()*3; var fruit = new THREE.Mesh(new THREE.CubeGeometry(size,size,size,1), mats[Math.floor(Math.random()*mats.length)]);
+      fruit.position.set(v.x, v.y+3, v.z); fruit.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0); this.mesh.add(fruit);
+    }
+    if (Math.random()>.5 && v.y > 10 && v.y < truncHeight - 10){
+      var h = 3 + Math.random()*5; var thickness = .2 + Math.random();
+      var branchGeometry = new THREE.CylinderGeometry(thickness/2, thickness, h, 3, 1); branchGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,h/2,0));
+      var branch = new THREE.Mesh(branchGeometry, matTrunc); branch.position.set(v.x, v.y, v.z);
+      var vec = new THREE.Vector3(v.x, 2, v.z); branch.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), vec.clone().normalize()); this.mesh.add(branch);
+    }
+  }
+  this.mesh.castShadow = true;
+}
+
+function createHero() { hero = new Hero(); hero.mesh.rotation.y = Math.PI/2; scene.add(hero.mesh); hero.nod(); }
+function createMonster() { monster = new Monster(); monster.mesh.position.z = 20; scene.add(monster.mesh); updateMonsterPosition(); }
+function createCarrot(){ carrot = new Carrot(); scene.add(carrot.mesh); }
+function createObstacle(){ obstacle = new Hedgehog(); obstacle.body.rotation.y = -Math.PI/2; obstacle.mesh.scale.set(1.1,1.1,1.1); obstacle.mesh.position.y = floorRadius+4; obstacle.nod(); scene.add(obstacle.mesh); }
+function createBonusParticles(){ bonusParticles = new BonusParticles(); bonusParticles.mesh.visible = false; scene.add(bonusParticles.mesh); }
+function createFirs(){
+  var nTrees = 100;
+  for(var i=0; i< nTrees; i++){
+    var phi = i*(Math.PI*2)/nTrees; var theta = Math.PI/2; theta += (Math.random()>.05)? .25 + Math.random()*.3 : - .35 -  Math.random()*.1;
+    var fir = new Tree(); fir.mesh.position.set(Math.sin(theta)*Math.cos(phi)*floorRadius, Math.sin(theta)*Math.sin(phi)*(floorRadius-10), Math.cos(theta)*floorRadius);
+    fir.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), fir.mesh.position.clone().normalize()); floor.add(fir.mesh); 
+  }
+}
+
+function updateMonsterPosition(){
+  monster.run(); monsterPosTarget -= delta*monsterAcceleration; monsterPos += (monsterPosTarget-monsterPos) *delta;
+  if (monsterPos < .56){ gameOver(); }
+  var angle = Math.PI*monsterPos;
+  monster.mesh.position.y = - floorRadius + Math.sin(angle)*(floorRadius + 12); monster.mesh.position.x = Math.cos(angle)*(floorRadius+15); monster.mesh.rotation.z = -Math.PI/2 + angle;
+}
+
+function updateCarrotPosition(){
+  carrot.mesh.rotation.y += delta * 6; carrot.mesh.rotation.z = Math.PI/2 - (floorRotation+carrot.angle);
+  carrot.mesh.position.y = -floorRadius + Math.sin(floorRotation+carrot.angle) * (floorRadius+50); carrot.mesh.position.x = Math.cos(floorRotation+carrot.angle) * (floorRadius+50);
+}
+
+function updateObstaclePosition(){
+  if (obstacle.status=="flying")return;
+  if (floorRotation+obstacle.angle > 2.5 ){ obstacle.angle = -floorRotation + Math.random()*.3; obstacle.body.rotation.y = Math.random() * Math.PI*2; }
+  obstacle.mesh.rotation.z = floorRotation + obstacle.angle - Math.PI/2;
+  obstacle.mesh.position.y = -floorRadius + Math.sin(floorRotation+obstacle.angle) * (floorRadius+3); obstacle.mesh.position.x = Math.cos(floorRotation+obstacle.angle) * (floorRadius+3);
+}
+
+function updateFloorRotation(){
+  floorRotation += delta*.03 * speed; floorRotation = floorRotation%(Math.PI*2); floor.rotation.z = floorRotation;
+}
+
+function checkCollision(){
+  var db = hero.mesh.position.clone().sub(carrot.mesh.position.clone()); var dm = hero.mesh.position.clone().sub(obstacle.mesh.position.clone());
+  if(db.length() < collisionBonus) getBonus();
+  if(dm.length() < collisionObstacle && obstacle.status != "flying") getMalus();
+}
+
+function getBonus(){
+  var explosionPos = carrot.mesh.position.clone();
+  carrot.angle += Math.PI/2; 
+  if (mathMode) { gameStatus = "paused"; generateMathQuestion(explosionPos); } 
+  else { applyBonus(explosionPos); }
+}
+
+function applyBonus(pos){
+  bonusParticles.mesh.position.copy(pos); bonusParticles.mesh.visible = true; bonusParticles.explose();
+  monsterPosTarget += .025; 
+}
+
+function generateMathQuestion(explosionPos) {
+  let mul = selectedMultipliers[Math.floor(Math.random() * selectedMultipliers.length)];
+  let num = Math.floor(Math.random() * 9) + 1; 
+  let ans = mul * num;
+  document.getElementById('questionText').innerText = mul + " x " + num + " = ?";
+
+  let options = [ans];
+  while(options.length < 4) {
+    let offset = Math.floor(Math.random() * 5) + 1;
+    let sign = Math.random() > 0.5 ? 1 : -1;
+    let wrong = ans + (offset * mul * sign);
+    if (wrong <= 0 || wrong === ans) wrong = ans + (Math.floor(Math.random() * 5) + 1);
+    if (!options.includes(wrong)) options.push(wrong);
+  }
+  options.sort(function() { return Math.random() - 0.5 }); 
+
+  let container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+  options.forEach(function(opt) {
+    let btn = document.createElement('button');
+    btn.className = "menu-btn opt-btn";
+    btn.innerText = opt;
+    btn.onclick = function() { checkMathAnswer(opt === ans, explosionPos); };
+    container.appendChild(btn);
+  });
+
+  document.getElementById('questionOverlay').style.display = 'flex';
+  TweenMax.pauseAll(); 
+}
+
+function checkMathAnswer(isCorrect, pos) {
+  document.getElementById('questionOverlay').style.display = 'none';
+  if(isCorrect) { applyBonus(pos); }
+  clock.getDelta(); 
+  gameStatus = "play";
+  TweenMax.resumeAll(); 
+}
+
+function getMalus(){
+  obstacle.status="flying";
+  var tx = (Math.random()>.5)? -20-Math.random()*10 : 20+Math.random()*5;
+  TweenMax.to(obstacle.mesh.position, 4, {x:tx, y:Math.random()*50, z:350, ease:Power4.easeOut});
+  TweenMax.to(obstacle.mesh.rotation, 4, {x:Math.PI*3, z:Math.PI*3, y:Math.PI*6, ease:Power4.easeOut, onComplete:function(){
+    obstacle.status = "ready"; obstacle.body.rotation.y = Math.random() * Math.PI*2;
+    obstacle.angle = -floorRotation - Math.random()*.4; obstacle.angle = obstacle.angle%(Math.PI*2);
+    obstacle.mesh.rotation.set(0,0,0); obstacle.mesh.position.z = 0;
+  }});
+  monsterPosTarget -= .04; 
+  TweenMax.from(this, .5, {malusClearAlpha:.5, onUpdate:function(){ renderer.setClearColor(malusClearColor, malusClearAlpha ); }})
+}
+
+function updateDistance(){ distance += delta*speed; fieldDistance.innerHTML = Math.floor(distance/2); }
+function updateLevel(){ if (speed >= maxSpeed) return; level++; speed += 2; }
+
+function gameOver(){
+  fieldGameOver.classList.add("show"); gameStatus = "gameOver"; monster.sit(); hero.hang(); monster.heroHolder.add(hero.mesh);
+  TweenMax.to(this, 1, {speed:0}); TweenMax.to(camera.position, 3, {z:cameraPosGameOver, y: 60, x:-30});
+  carrot.mesh.visible = false; obstacle.mesh.visible = false; clearInterval(levelInterval);
+}
+
+function replay(){
+  gameStatus = "preparingToReplay"; fieldGameOver.classList.remove("show");
+  TweenMax.killTweensOf(monster.pawFL.position); TweenMax.killTweensOf(monster.pawFR.position);
+  TweenMax.killTweensOf(monster.pawBL.position); TweenMax.killTweensOf(monster.pawBR.position);
+  TweenMax.killTweensOf(monster.pawFL.rotation); TweenMax.killTweensOf(monster.pawFR.rotation);
+  TweenMax.killTweensOf(monster.pawBL.rotation); TweenMax.killTweensOf(monster.pawBR.rotation);
+  TweenMax.killTweensOf(monster.tail.rotation); TweenMax.killTweensOf(monster.head.rotation);
+  TweenMax.killTweensOf(monster.eyeL.scale); TweenMax.killTweensOf(monster.eyeR.scale);
+  monster.tail.rotation.y = 0;
+  TweenMax.to(camera.position, 3, {z:cameraPosGame, x:0, y:30, ease:Power4.easeInOut});
+  TweenMax.to(monster.torso.rotation,2, {x:0, ease:Power4.easeInOut}); TweenMax.to(monster.torso.position,2, {y:0, ease:Power4.easeInOut});
+  TweenMax.to(monster.pawFL.rotation,2, {x:0, ease:Power4.easeInOut}); TweenMax.to(monster.pawFR.rotation,2, {x:0, ease:Power4.easeInOut});
+  TweenMax.to(monster.mouth.rotation,2, {x:.5, ease:Power4.easeInOut}); TweenMax.to(monster.head.rotation,2, {y:0, x:-.3, ease:Power4.easeInOut});
+  TweenMax.to(hero.mesh.position, 2, { x:20, ease:Power4.easeInOut}); TweenMax.to(hero.head.rotation, 2, { x:0, y:0, ease:Power4.easeInOut});
+  TweenMax.to(monster.mouth.rotation, 2, {x:.2, ease:Power4.easeInOut});
+  TweenMax.to(monster.mouth.rotation, 1, {x:.4, ease:Power4.easeIn, delay: 1, onComplete:function(){ resetGame(); }});
+}
+
+function loop(){
+  delta = clock.getDelta();
+  if (gameStatus == "play"){
+    updateFloorRotation();
+    if (hero.status == "running"){ hero.run(); }
+    updateDistance(); updateMonsterPosition(); updateCarrotPosition(); updateObstaclePosition(); checkCollision();
+  }
+  renderer.render(scene, camera); requestAnimationFrame(loop);
+}
+
+function initUI(){
+  fieldDistance = document.getElementById("distValue");
+  fieldGameOver = document.getElementById("gameoverInstructions");
+}
+
+window.addEventListener('load', init, false);
+
+function init(event){
+  initScreenAnd3D(); createLights(); createFloor(); createHero(); createMonster(); createFirs();
+  createCarrot(); createBonusParticles(); createObstacle(); initUI();
+  document.getElementById('startMenuOverlay').style.display = 'flex';
+  gameStatus = "menu"; loop();
+}
+
+function startGameMode(mode) {
+  if (mode === 'normal') {
+    mathMode = false;
+    document.getElementById('startMenuOverlay').style.display = 'none';
+    resetGame();
+  } else {
+    document.getElementById('modeSelection').style.display = 'none';
+    document.getElementById('multiplierSelection').style.display = 'block';
+  }
+}
+
+function startMathGame() {
+  let checkboxes = document.querySelectorAll('.mul-cb:checked');
+  if(checkboxes.length === 0) { alert('Pilih minimal satu angka perkalian!'); return; }
+  selectedMultipliers = Array.from(checkboxes).map(function(cb) { return parseInt(cb.value) });
+  mathMode = true;
+  document.getElementById('startMenuOverlay').style.display = 'none';
+  resetGame();
+}
+
+function backToMode() {
+  document.getElementById('modeSelection').style.display = 'block';
+  document.getElementById('multiplierSelection').style.display = 'none';
+}
+
+function returnToMenu() {
+  gameStatus = "menu"; fieldGameOver.classList.remove("show");
+  document.getElementById('startMenuOverlay').style.display = 'flex';
+  document.getElementById('modeSelection').style.display = 'block';
+  document.getElementById('multiplierSelection').style.display = 'none';
+  hero.mesh.position.set(0,0,0); hero.head.rotation.set(0,0,0); monster.mesh.position.z = 20;
+  TweenMax.to(camera.position, 1, {z:cameraPosGame, x:0, y:30});
+}
+
+function resetGame(){
+  scene.add(hero.mesh); hero.mesh.rotation.y = Math.PI/2; hero.mesh.position.set(0,0,0);
+  monsterPos = .56; monsterPosTarget = .65; speed = initSpeed; level = 0; distance = 0;
+  carrot.mesh.visible = true; obstacle.mesh.visible = true;
+  gameStatus = "play"; hero.status = "running"; hero.nod();
+  audio.currentTime = 0; var playPromise = audio.play(); if (playPromise && playPromise.catch) playPromise.catch(function(){});
+  updateLevel(); if(levelInterval) clearInterval(levelInterval); levelInterval = setInterval(updateLevel, levelUpdateFreq);
+  clock.getDelta(); 
+}
+  </script>
+</body>
+</html>
