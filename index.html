@@ -2,7 +2,6 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <!-- OPTIMASI MOBILE: Mencegah zoom in/out native, agar tidak merusak kontrol game -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Rabbit Run Game - Math Edition</title>
 
@@ -46,7 +45,7 @@
 
     .menu-box {
       background: #fff;
-      padding: 40px;
+      padding: 30px;
       border-radius: 20px;
       text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -58,7 +57,8 @@
 
     .menu-logo {
       max-width: 80%;
-      height: auto;
+      max-height: 180px; /* Membatasi tinggi logo agar menu muat */
+      object-fit: contain;
       margin-bottom: 20px;
       display: block;
       margin-left: auto;
@@ -67,8 +67,8 @@
 
     .menu-btn {
       display: inline-block;
-      padding: 15px 30px;
-      margin: 10px;
+      padding: 12px 25px;
+      margin: 8px;
       background: #dc5f45;
       color: white;
       border: none;
@@ -86,8 +86,8 @@
     .info-btn {
       background: #5f9042;
       font-size: 16px;
-      padding: 10px 25px;
-      margin-top: 15px;
+      padding: 10px 20px;
+      margin-top: 10px;
     }
     .info-btn:hover { background: #4a7233; }
 
@@ -98,8 +98,7 @@
       max-width: 600px;
       width: 95%;
       max-height: 90vh;
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden;
     }
     
     .info-img {
@@ -129,7 +128,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 10;
+      z-index: 101;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
     .close-btn:hover { background: #b44b39; }
@@ -139,13 +139,13 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 10px;
-      margin: 20px 0;
+      margin: 15px 0;
     }
 
     .checkbox-group label {
-      font-size: 24px;
+      font-size: 20px;
       background: #f1f1f1;
-      padding: 10px 15px;
+      padding: 8px 15px;
       border-radius: 8px;
       cursor: pointer;
       color: #544027;
@@ -155,21 +155,21 @@
     }
 
     .checkbox-group input {
-      transform: scale(1.5);
+      transform: scale(1.3);
       margin-right: 8px;
       cursor: pointer;
     }
 
     /* Timer Settings */
     .timer-toggle {
-      font-size: 20px;
+      font-size: 18px;
       color: #544027;
       cursor: pointer;
       background: #e6e6e6;
-      padding: 10px 20px;
+      padding: 8px 15px;
       border-radius: 8px;
       display: inline-block;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       user-select: none;
     }
 
@@ -200,18 +200,18 @@
       width: 46%;
       margin: 2%;
       font-size: 32px;
-      padding: 20px 0;
+      padding: 15px 0;
     }
 
-    /* Original UI elements */
+    /* Game Over Elements dipindah ke Atas (top: 15%) agar animasi monster tak tertutup */
     #gameoverInstructions {
       position: absolute;
       font-family: 'Voltaire', sans-serif;
       text-align: center;
       opacity: 0;
       left: 50%;
-      top: 50%;
-      transform: translate(-50%, -100%);
+      top: 15%; 
+      transform: translate(-50%, -50px);
       user-select: none;
       transition: all 500ms ease-in-out;
       pointer-events: none;
@@ -221,16 +221,16 @@
 
     #gameoverInstructions.show {
       opacity: 1;
-      transform: translate(-50%, -50%);
+      transform: translate(-50%, 0);
       pointer-events: auto;
     }
 
     .go-title {
       font-weight: bold;
       text-transform: uppercase;
-      font-size: 100px;
+      font-size: 80px;
       color: #ffc5a2;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
     }
 
@@ -242,7 +242,7 @@
       user-select: none;
       z-index: 10;
       background: rgba(255,255,255,0.6);
-      padding: 10px 20px;
+      padding: 8px 20px;
       border-radius: 15px;
     }
 
@@ -260,7 +260,7 @@
     #distValue {
       text-transform: uppercase;
       color: #dc5f45;
-      font-size: 45px;
+      font-size: 40px;
       font-family: 'Voltaire', sans-serif;
       text-align: center;
       line-height: 1;
@@ -293,41 +293,30 @@
 
     .lightInstructions { color: #5f9042; }
 
-    /* OPTIMASI LAYAR KECIL: Mempertahankan tata letak ala Desktop (Grid/Sejajar) */
+    /* OPTIMASI LAYAR KECIL HP: Memastikan seluruh UI muat di 1 layar */
     @media (max-width: 700px) {
-      .go-title { font-size: 15vw; margin-bottom: 10px; }
+      .go-title { font-size: 14vw; margin-bottom: 10px; }
       #instructions { font-size: 3.5vw; bottom: 15px; }
       #distValue { font-size: 8vw; }
       .label { font-size: 2.5vw; }
-      #dist { left: 15px; top: 15px; padding: 5px 15px; }
-      #gameplayLogo { width: 100px; top: 15px; right: 15px; }
+      #dist { left: 10px; top: 10px; padding: 5px 15px; }
+      #gameplayLogo { width: 90px; top: 10px; right: 10px; }
       
-      .menu-box { padding: 5vw; width: 92%; }
-      .menu-logo { max-width: 80%; margin-bottom: 3vw; }
+      .menu-box { padding: 15px; width: 95%; max-height: 98vh; }
+      .menu-logo { max-height: 15vh; margin-bottom: 10px; } /* Membatasi tinggi logo */
       
-      .menu-btn { 
-        font-size: 3.5vw; 
-        padding: 3vw 4vw; 
-        margin: 1.5vw; 
-        width: auto; 
-        display: inline-block; 
-      }
-      
-      .info-btn { font-size: 3vw; margin-top: 3vw; padding: 2.5vw 4vw;}
+      .menu-btn { font-size: 16px; padding: 10px 15px; margin: 5px; width: auto; }
+      .info-btn { font-size: 14px; margin-top: 5px; padding: 8px 15px; }
 
-      .checkbox-group { gap: 1.5vw; margin: 3vw 0;}
-      .checkbox-group label { 
-        font-size: 4vw; 
-        padding: 1.5vw 2.5vw; 
-        width: auto;
-      }
-      .checkbox-group input { transform: scale(1.1); margin-right: 1vw;}
+      .checkbox-group { gap: 6px; margin: 10px 0;}
+      .checkbox-group label { font-size: 16px; padding: 6px 12px; }
+      .checkbox-group input { transform: scale(1.2); margin-right: 5px;}
       
-      .timer-toggle { font-size: 3.5vw; padding: 2vw 3vw; margin-bottom: 2vw;}
+      .timer-toggle { font-size: 14px; padding: 6px 12px; margin-bottom: 5px; }
 
-      .opt-btn { width: 46%; margin: 2%; font-size: 6vw; padding: 4vw 0; }
-      #questionText { font-size: 6.5vw; margin: 1vw 0 2vw 0; }
-      h3 { font-size: 4vw !important; margin-bottom: 2vw !important; }
+      .opt-btn { width: 46%; margin: 2%; font-size: 24px; padding: 15px 0; }
+      #questionText { font-size: 24px; margin: 5px 0 15px 0; }
+      h3 { font-size: 18px !important; margin-bottom: 5px !important; }
     }
   </style>
 </head>
@@ -335,7 +324,7 @@
 <body>
   <div id="world"></div>
 
-  <!-- Start Menu Overlay (style="display: flex;" MENCEGAH JEDA VISUAL SAAT LOADING AWAL) -->
+  <!-- Start Menu Overlay -->
   <div id="startMenuOverlay" class="overlay-ui" style="display: flex;">
     <div class="menu-box">
       <!-- LOGO DARI GITHUB -->
@@ -377,13 +366,17 @@
     </div>
   </div>
 
-  <!-- Info Popup Overlay (Tahukah Kamu?) -->
-  <div id="infoOverlay" class="overlay-ui">
-    <div class="menu-box info-box">
-      <button class="close-btn" onclick="closeInfoPopup()">X</button>
-      <h2 style="color:#5f9042; margin-top:0; margin-bottom: 10px; font-size: 28px; text-transform: uppercase;">Tahukah Kamu?</h2>
-      <!-- GAMBAR INFOGRAFIK BARU DARI GITHUB -->
-      <img src="https://raw.githubusercontent.com/dosen-uinsi/RABBIT-RUN-BY-MATHNOLOGY/refs/heads/main/INFOGRAFIK%20KELINCI%202.png" alt="Infografik Kelinci" id="zoomImage" class="info-img">
+  <!-- Info Popup Overlay (Tahukah Kamu?) - LAYAR PENUH (FULLSCREEN) -->
+  <div id="infoOverlay" class="overlay-ui" style="background: rgba(219, 230, 230, 0.98);">
+    <!-- Tombol Tutup -->
+    <button class="close-btn" onclick="closeInfoPopup()">X</button>
+    <!-- Judul Melayang -->
+    <div style="position: absolute; top: 15px; left: 15px; background: #fff; padding: 8px 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 101;">
+      <h2 style="color:#5f9042; margin:0; font-size: 20px; text-transform: uppercase;">Tahukah Kamu?</h2>
+    </div>
+    <!-- Area Khusus Zoom & Geser -->
+    <div id="zoomContainer" style="width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; touch-action: none; cursor: grab;">
+      <img src="https://raw.githubusercontent.com/dosen-uinsi/RABBIT-RUN-BY-MATHNOLOGY/refs/heads/main/INFOGRAFIK%20KELINCI%202.png" alt="Infografik Kelinci" id="zoomImage" style="width: 100%; height: 100%; object-fit: contain; transform-origin: center center; will-change: transform;">
     </div>
   </div>
 
@@ -391,16 +384,15 @@
   <div id="questionOverlay" class="overlay-ui">
     <div class="menu-box" style="padding: 25px 20px;">
       <h2 id="questionText" style="color:#544027; margin: 5px 0 15px 0;">2 x 3 = ?</h2>
-      
       <!-- Timer Bar -->
       <div id="timerBarContainer">
         <div id="timerBar"></div>
       </div>
-
       <div id="optionsContainer" class="options-grid"></div>
     </div>
   </div>
 
+  <!-- Game Over Screen (Digeser ke Atas) -->
   <div id="gameoverInstructions">
     <div class="go-title">Game Over</div>
     <div style="color: #544027; font-size: 16px; margin-bottom: 20px;">Sentuh sembarang tempat di layar untuk main lagi</div>
@@ -1019,51 +1011,117 @@ function showInfoPopup() {
 
 function closeInfoPopup() {
   document.getElementById('infoOverlay').style.display = 'none';
-  // Reset zoom saat ditutup
-  const imgEl = document.getElementById('zoomImage');
-  if(imgEl) imgEl.style.transform = `scale(1)`;
+  if(window.resetInfoZoom) window.resetInfoZoom(); // Panggil reset zoom
 }
 
-// LOGIKA PINCH TO ZOOM INFOGRAFIK KHUSUS HP
+// LOGIKA FULL PINCH, PAN & DRAG ZOOM KHUSUS INFOGRAFIK
 function setupZoom() {
+  const container = document.getElementById('zoomContainer');
   const imgEl = document.getElementById('zoomImage');
+  
+  let scale = 1;
+  let panning = false;
+  let pointX = 0;
+  let pointY = 0;
+  let startX = 0;
+  let startY = 0;
   let initialDist = 0;
-  let currentScale = 1;
 
-  imgEl.addEventListener('touchstart', function(e) {
-    if (e.touches.length === 2) {
+  function setTransform() {
+    imgEl.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+  }
+
+  // Fungsi reset diekspos agar bisa dipanggil saat pop up ditutup
+  window.resetInfoZoom = function() {
+    scale = 1;
+    pointX = 0;
+    pointY = 0;
+    setTransform();
+  };
+
+  // TOUCH EVENTS UNTUK HP
+  container.addEventListener('touchstart', function(e) {
+    if (e.target.closest('.close-btn')) return; 
+    e.preventDefault(); 
+    if (e.touches.length === 1) {
+      panning = true;
+      startX = e.touches[0].clientX - pointX;
+      startY = e.touches[0].clientY - pointY;
+    } else if (e.touches.length === 2) {
+      panning = false;
       initialDist = Math.hypot(
-        e.touches[0].pageX - e.touches[1].pageX, 
-        e.touches[0].pageY - e.touches[1].pageY
+        e.touches[0].clientX - e.touches[1].clientX, 
+        e.touches[0].clientY - e.touches[1].clientY
       );
     }
   });
 
-  imgEl.addEventListener('touchmove', function(e) {
-    if (e.touches.length === 2) {
-      e.preventDefault(); 
+  container.addEventListener('touchmove', function(e) {
+    if (e.target.closest('.close-btn')) return;
+    e.preventDefault();
+    if (e.touches.length === 1 && panning) {
+      pointX = e.touches[0].clientX - startX;
+      pointY = e.touches[0].clientY - startY;
+      setTransform();
+    } else if (e.touches.length === 2) {
       let currentDist = Math.hypot(
-        e.touches[0].pageX - e.touches[1].pageX, 
-        e.touches[0].pageY - e.touches[1].pageY
+        e.touches[0].clientX - e.touches[1].clientX, 
+        e.touches[0].clientY - e.touches[1].clientY
       );
       let zoomFactor = currentDist / initialDist;
-      let newScale = currentScale * zoomFactor;
+      scale *= zoomFactor;
+      scale = Math.max(1, Math.min(scale, 5)); // Batas zoom maksimal 5x
+      initialDist = currentDist;
       
-      newScale = Math.min(Math.max(1, newScale), 4);
-      imgEl.style.transform = `scale(${newScale})`;
+      if(scale === 1) { pointX = 0; pointY = 0; }
+      setTransform();
     }
   });
 
-  imgEl.addEventListener('touchend', function(e) {
+  container.addEventListener('touchend', function(e) {
     if (e.touches.length < 2) {
-      let transform = imgEl.style.transform;
-      let match = transform.match(/scale\(([^)]+)\)/);
-      if(match) {
-        currentScale = parseFloat(match[1]);
+      if (e.touches.length === 1) {
+        panning = true;
+        startX = e.touches[0].clientX - pointX;
+        startY = e.touches[0].clientY - pointY;
       } else {
-        currentScale = 1;
+        panning = false;
       }
     }
+    if (scale === 1) { 
+      pointX = 0; 
+      pointY = 0; 
+      setTransform(); 
+    }
+  });
+  
+  // MOUSE EVENTS UNTUK LAPTOP
+  container.addEventListener('mousedown', function(e) {
+    if (e.target.closest('.close-btn')) return;
+    e.preventDefault();
+    startX = e.clientX - pointX;
+    startY = e.clientY - pointY;
+    panning = true;
+  });
+
+  container.addEventListener('mousemove', function(e) {
+    if (!panning) return;
+    e.preventDefault();
+    pointX = e.clientX - startX;
+    pointY = e.clientY - startY;
+    setTransform();
+  });
+
+  container.addEventListener('mouseup', function() { panning = false; });
+  container.addEventListener('mouseleave', function() { panning = false; });
+
+  container.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    let delta = (e.deltaY < 0) ? 0.1 : -0.1;
+    scale += delta;
+    scale = Math.max(1, Math.min(scale, 5));
+    if(scale === 1) { pointX = 0; pointY = 0; }
+    setTransform();
   });
 }
 
