@@ -108,7 +108,7 @@
       border-radius: 10px;
       margin-top: 10px;
       transform-origin: top center;
-      transition: transform 0.1s ease-out; /* Memberikan efek halus saat zoom */
+      transition: transform 0.1s ease-out; 
     }
 
     .close-btn {
@@ -234,6 +234,7 @@
       text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
     }
 
+    /* PANEL JARAK & LOGO GAMEPLAY */
     #dist {
       position: absolute;
       left: 20px;
@@ -265,6 +266,17 @@
       line-height: 1;
     }
 
+    #gameplayLogo {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 150px; 
+      z-index: 10;
+      user-select: none;
+      pointer-events: none; 
+      filter: drop-shadow(2px 2px 0px rgba(255,255,255,0.6));
+    }
+
     #instructions {
       position: absolute;
       width: 100%;
@@ -288,6 +300,7 @@
       #distValue { font-size: 8vw; }
       .label { font-size: 2.5vw; }
       #dist { left: 15px; top: 15px; padding: 5px 15px; }
+      #gameplayLogo { width: 100px; top: 15px; right: 15px; }
       
       .menu-box { padding: 5vw; width: 92%; }
       .menu-logo { max-width: 80%; margin-bottom: 3vw; }
@@ -325,7 +338,7 @@
   <!-- Start Menu Overlay (style="display: flex;" MENCEGAH JEDA VISUAL SAAT LOADING AWAL) -->
   <div id="startMenuOverlay" class="overlay-ui" style="display: flex;">
     <div class="menu-box">
-      <!-- LOGO BARU DARI GITHUB -->
+      <!-- LOGO DARI GITHUB -->
       <img src="https://raw.githubusercontent.com/dosen-uinsi/RABBIT-RUN-BY-MATHNOLOGY/refs/heads/main/RABBIT%20RUN%203.png" alt="Rabbit Run Logo" class="menu-logo">
       
       <!-- Pemilihan Mode -->
@@ -399,6 +412,9 @@
     <div id="distValue">0</div>
   </div>
 
+  <!-- LOGO SAAT GAMEPLAY AKTIF DI KANAN ATAS -->
+  <img id="gameplayLogo" src="https://raw.githubusercontent.com/dosen-uinsi/RABBIT-RUN-BY-MATHNOLOGY/refs/heads/main/RABBIT%20RUN%203.png" alt="Game Logo Gameplay">
+
   <div id="instructions">
     Sentuh layar untuk melompat
     <span class="lightInstructions"><br>Ambil wortel / Hindari landak</span>
@@ -431,6 +447,7 @@ var floorRotation = 0;
 var collisionObstacle = 10;
 var collisionBonus = 20;
 
+// Variables untuk Mode Edukasi
 var gameStatus = "menu"; 
 var mathMode = false;
 var useTimer = false;
@@ -569,7 +586,7 @@ Hero = function() {
   this.mouth = new THREE.Mesh(mouthGeom, brownMat); this.mouth.position.set(0, -4, 8);
   this.head.add(this.mouth);
   var pawFGeom = new THREE.CubeGeometry(3,3,3, 1);
-  this.pawFR = new Mesh(pawFGeom, lightBrownMat); this.pawFR.position.set(-2, 1.5, 6);
+  this.pawFR = new THREE.Mesh(pawFGeom, lightBrownMat); this.pawFR.position.set(-2, 1.5, 6);
   this.body.add(this.pawFR);
   this.pawFL = this.pawFR.clone(); this.pawFL.position.x = - this.pawFR.position.x;
   this.body.add(this.pawFL);
@@ -596,8 +613,6 @@ Hero = function() {
   this.head.add(this.eyeR);
   this.body.traverse(function(object) { if (object instanceof THREE.Mesh) { object.castShadow = true; object.receiveShadow = true; } });
 }
-
-var Mesh = THREE.Mesh;
 
 Hero.prototype.run = function(){
   this.status = "running";
@@ -988,12 +1003,12 @@ function initUI(){
   fieldGameOver = document.getElementById("gameoverInstructions");
 }
 
-window.addEventListener('DOMContentLoaded', init, false);
+window.addEventListener('DOMContentLoaded', init, false); 
 
 function init(event){
   initScreenAnd3D(); createLights(); createFloor(); createHero(); createMonster(); createFirs();
   createCarrot(); createBonusParticles(); createObstacle(); initUI();
-  setupZoom(); // Panggil fungsi setup zoom infografik
+  setupZoom(); 
   gameStatus = "menu"; loop();
 }
 
@@ -1026,7 +1041,7 @@ function setupZoom() {
 
   imgEl.addEventListener('touchmove', function(e) {
     if (e.touches.length === 2) {
-      e.preventDefault(); // Cegah scroll saat sedang zoom
+      e.preventDefault(); 
       let currentDist = Math.hypot(
         e.touches[0].pageX - e.touches[1].pageX, 
         e.touches[0].pageY - e.touches[1].pageY
@@ -1034,7 +1049,6 @@ function setupZoom() {
       let zoomFactor = currentDist / initialDist;
       let newScale = currentScale * zoomFactor;
       
-      // Batasi zoom (minimal 1x maksimal 4x)
       newScale = Math.min(Math.max(1, newScale), 4);
       imgEl.style.transform = `scale(${newScale})`;
     }
@@ -1042,7 +1056,6 @@ function setupZoom() {
 
   imgEl.addEventListener('touchend', function(e) {
     if (e.touches.length < 2) {
-      // Simpan skala terakhir
       let transform = imgEl.style.transform;
       let match = transform.match(/scale\(([^)]+)\)/);
       if(match) {
